@@ -1,11 +1,13 @@
 import { ReactNode } from "react";
 import { Inter } from "next/font/google";
-import { Viewport } from "next";
 import PlausibleProvider from "next-plausible";
-import { getSEOTags } from "@/libs/seo";
-import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
+import {NextIntlClientProvider} from 'next-intl';
+import {getMessages} from 'next-intl/server';
+import { getSEOTags } from "@/src/libs/seo";
+import ClientLayout from "@/src/components/LayoutClient";
+ 
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -13,9 +15,11 @@ const font = Inter({ subsets: ["latin"] });
 // You can override them in each page passing params to getSOTags() function.
 export const metadata = getSEOTags();
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children, params: {locale} }: { children: ReactNode, params: {locale: string}; }) {
+  const messages = await getMessages()
+
   return (
-    <html lang="en" data-theme={config.colors.theme} className={font.className}>
+    <html lang={locale} data-theme={config.colors.theme} className={font.className}>
       {config.domainName && (
         <head>
           <PlausibleProvider domain={config.domainName} />
@@ -23,7 +27,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       )}
       <body>
         {/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-        <ClientLayout>{children}</ClientLayout>
+        <NextIntlClientProvider messages={messages}>
+           <ClientLayout>{children}</ClientLayout>
+       </NextIntlClientProvider>
       </body>
     </html>
   );
