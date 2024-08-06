@@ -1,9 +1,9 @@
 
-import { redirect } from 'next/navigation'
 
 const Page = () => {
-  redirect('/en')
-  
+  <div>
+    Homepage
+  </div>
 }
 
 export default Page
